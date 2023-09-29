@@ -1,4 +1,5 @@
 import { CategoryEntity } from 'src/categories/entities/category.entity';
+import { ProductEntity } from 'src/products/entities/product.entity';
 import { Roles } from 'src/utility/commons/roles-enum';
 import {
   Column,
@@ -10,7 +11,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('users')
+@Entity({name:'users'})
 export class UserEntity {
   @PrimaryGeneratedColumn()
   id: string;
@@ -42,4 +43,7 @@ export class UserEntity {
 
   @OneToMany(()=>CategoryEntity, (category)=>category.addedBy)
   categories: CategoryEntity[];
+
+  @OneToMany(()=>ProductEntity, (product)=>product.addedBy)
+  products: ProductEntity[];
 }
