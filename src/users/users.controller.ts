@@ -14,7 +14,7 @@ import { UserSignUp } from './dto/user-signup.dto';
 import { UserEntity } from './entities/user.entity';
 import { UserSignIn } from './dto/user-signin.dto';
 import { CurrentUser } from 'src/utility/decorators/current-user.decorator';
-import { AuthentificationGuard } from 'src/utility/guards/authentification.guard';
+import { AuthenticationGuard } from 'src/utility/guards/authentification.guard';
 import { Roles } from 'src/utility/commons/roles-enum';
 import { AuthorizeGuard } from 'src/utility/guards/authorization.guard';
 
@@ -42,7 +42,7 @@ export class UsersController {
   }
 
 
-  @UseGuards(AuthentificationGuard, AuthorizeGuard([Roles.ADMIN]))
+  @UseGuards(AuthenticationGuard, AuthorizeGuard([Roles.ADMIN]))
   @Get('/all')
   async findAll(): Promise<UserEntity[]>{
     return await this.usersService.findAll();
@@ -63,7 +63,7 @@ export class UsersController {
     return this.usersService.remove(+id);
   }
 
-  @UseGuards(AuthentificationGuard)
+  @UseGuards(AuthenticationGuard)
   @Get('me')
   getProfile(@CurrentUser()  currentUser: UserEntity) {
     return currentUser
