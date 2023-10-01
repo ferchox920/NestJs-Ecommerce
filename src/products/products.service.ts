@@ -6,6 +6,7 @@ import { ProductEntity } from './entities/product.entity';
 import { Repository } from 'typeorm';
 import { CategoriesService } from 'src/categories/categories.service';
 import { UserEntity } from 'src/users/entities/user.entity';
+import { OrderStatus } from 'src/utility/commons/order-status.enum';
 
 @Injectable()
 export class ProductsService {
@@ -70,6 +71,18 @@ export class ProductsService {
       },
     });
     if (!product) throw new NotFoundException('Product not found');
+    return product;
+  }
+
+  async updateStock(id: string, stock: number, status: OrderStatus) {
+    let product = await this.findOne(id);
+    if (status === OrderStatus.DELIVERED) {
+      product.stock -= stock;
+      await this.productRepository.save(product);
+    } else {
+      product.stock += stock;
+    }
+    product = await this.productRepository.save(product);
     return product;
   }
 }
