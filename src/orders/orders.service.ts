@@ -1,7 +1,9 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException,
+  forwardRef,
 } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
@@ -23,7 +25,8 @@ export class OrdersService {
     private readonly orderRepository: Repository<OrderEntity>,
     @InjectRepository(OrdersProductsEntity)
     private readonly ordersProductsRepository: Repository<OrdersProductsEntity>,
-    private readonly productService: ProductsService,
+    @Inject(forwardRef(() => ProductsService))
+    private readonly productsService: ProductsService,
   ) {}
   async create(
     createOrderDto: CreateOrderDto,
@@ -45,7 +48,7 @@ export class OrdersService {
 
     for (let i = 0; i < createOrderDto.orderedProducts.length; i++) {
       const order = orderTbl;
-      const product = await this.productService.findOne(
+      const product = await this.productsService.findOne(
         createOrderDto.orderedProducts[i].id,
       );
       const product_quantity =
@@ -89,6 +92,13 @@ export class OrdersService {
         user: true,
         products: { product: true },
       },
+    });
+  }
+
+  async findByProductId(id: string): Promise<OrderEntity> {
+    return await this.orderRepository.findOne({
+      relations: { products: true },
+      where: { products: { product: { id } } },
     });
   }
 
@@ -137,7 +147,7 @@ export class OrdersService {
     return `This action removes a #${id} order`;
   }
 
-  async canceled(id:string, currentUser:UserEntity,){
+  async canceled(id: string, currentUser: UserEntity) {
     let order = await this.findOne(id);
     if (!order) throw new NotFoundException('Order not found');
     if (order.status === OrderStatus.CANCELLED) {
@@ -149,12 +159,11 @@ export class OrdersService {
     order = await this.orderRepository.save(order);
     await this.stockUpdate(order, OrderStatus.CANCELLED);
     return order;
-  
   }
 
   async stockUpdate(order: OrderEntity, status: OrderStatus) {
     for (const op of order.products) {
-      await this.productService.updateStock(
+      await this.productsService.updateStock(
         op.product.id,
         op.product_quantity,
         status,

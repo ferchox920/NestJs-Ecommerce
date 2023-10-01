@@ -31,8 +31,8 @@ export class ReviewsController {
   }
 
   @Get('/all')
-  findAll() {
-    return this.reviewsService.findAll();
+  async findAll() {
+    return await this.reviewsService.findAll();
   }
 
   @Get()

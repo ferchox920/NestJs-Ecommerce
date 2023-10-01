@@ -37,8 +37,8 @@ export class ReviewsService {
     return this.reviewRepository.save(review);
   }
 
-  findAll() {
-    return `This action returns all reviews`;
+  async findAll() {
+    return await this.reviewRepository.find()
   }
 
   async findAllByProduct(id: string) {
@@ -52,7 +52,9 @@ export class ReviewsService {
     });
   }
 
-  findOne(id: string): Promise<ReviewEntity> {
+  async findOne(id: string): Promise<ReviewEntity> {
+    console.log(id);
+    
     const review = this.reviewRepository.findOne({
       where: { id: id },
       relations: { user: true, product: { category: true } },
