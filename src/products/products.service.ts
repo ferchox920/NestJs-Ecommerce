@@ -41,7 +41,7 @@ export class ProductsService {
 
   async findAll(
     query: any,
-  ): Promise<{ products: any[]; totalProducts; limit }> {
+  ): Promise<any> {
     let filteredTotalProducts: number;
     let limit: number;
     if (!query.limit) {
@@ -130,7 +130,7 @@ export class ProductsService {
     return await this.productRepository.save(existingProduct);
   }
 
-  async remove(id: string) {
+  async remove(id: string):Promise<ProductEntity> {
     const product = await this.findOne(id);
     const order = await this.ordersService.findByProductId(product.id);
     if (order) {
